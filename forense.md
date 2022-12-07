@@ -136,6 +136,29 @@ Verificando el dump de memoria obtenido del proceso PID 1640 identificado como m
  
 _Fig. 17 Paginas de bancos en el dump de memoria._
 
+## 3.3	Regla Yara
+
+YARA es una herramienta destinada (pero no limitada a) ayudar la busqueda de malware a travez de reglas definidas. Para el caso de CRIDEX, de acuerdo a lo encontrado, la regla YARA es la siguiente:
+
+```
+rule Malware_Cridex_Generic_dll {
+	meta:
+		description = "Rule matching Cridex Malware"
+		date = "2022-12-06"
+		reference = "https://ww.virustotal.com/gui/file/5b1361479116041f0126ce82dfd24c4e2c79553b65d3240ecea2dcab4452dcb5"
+		hash = "12cf6583f5a9171a1d621ae02b4eb626"
+
+	strings:
+		$c1 = "MSVCR80.dll" fullword
+		$b2a = "MSVCP80.dll" fullword
+		$b2b = "USER32.dll" fullword
+	condition:
+		$c1 and 1 of ($b*)
+}
+```
+
+_Fig. 18 Busqueda con Yala Rule._
+
 # 4 Conclusiones
 
 •	La herramienta Volatility es efectiva para la detección y análisis del malware Cidrex en memoria, incluso permitiria el analisis de otros malware. Para este caso particular, el método utilizado fue analizar procesos y conexiones contenidas en la memoria, para finalmente analizar el volcado de los procesos sospechosos con la página virustotal.com.
