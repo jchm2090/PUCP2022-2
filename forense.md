@@ -51,58 +51,69 @@ Para realizar el análisis del volcado de memoria utilizamos una máquina virtua
 Se observa que el sistema operativo es WinXPSP2x86:
 
 ![1](https://user-images.githubusercontent.com/102627887/206274865-b92f1d4d-37da-49c6-b0fc-50fe19bcf1fa.png)
+
 _Fig. 1 Evidencia del sistema operativo de la memoria_
 
 Se puede notar que se utilizó -f, el cual especifica el archivo del volcado de nuestra imagen forense cridex.vmen. Al ejecutar “imageinfo” concluimos que el sistema operativo del usuario es un Windows XP y a partir de ahora podemos hacer uso del (Suggested Profile = WinXPSP2x86) e investigar,
 Listamos los procesos que estaban en ejecución cuando se hizo el volcado de memoria con el comando pslist.
 
 ![2](https://user-images.githubusercontent.com/102627887/206274883-5c1ed080-121b-4a43-bee0-a1d3da76f7ea.png)
+
 _Fig. 2 Procesos de la memoria en lista_
 
 Asimismo podemos listar los procesos en modo arbol para verificar los procesos dependientes con el comando pstree.
  
 ![3](https://user-images.githubusercontent.com/102627887/206274899-de5cc08c-dd43-40db-adbf-5bcb673afeba.png)
+
 _Fig. 3 Procesos de la memoria en arbol_
 
 La herramienta tambien nos permite observar cual proceso tiene sesiones establecidas con el comando psxview.
 
 ![4](https://user-images.githubusercontent.com/102627887/206274920-e95a437a-2a82-495e-a578-f7863f71e5ee.png)
+
 _Fig. 4 Procesos de la memoria con psxview_
 
 Cada uno de los procesos debe ser investigado, para fines del presente trabajo, nos concentraremos en el proceso con PID 1640 Reader_sl.exe, el cual podemos ubiar a mas detalle su ubicación con el comando cmdline.
 
 ![5-1](https://user-images.githubusercontent.com/102627887/206274930-fc015c8c-a35b-4fa1-a120-631057849009.png)
 ![5-2](https://user-images.githubusercontent.com/102627887/206274947-d94b6cc2-0ced-4814-b189-b35d616d7ecd.png)
+
 _Fig. 5 Proceso PID 1640_
 
 Para el analisis respectivo, se realizara una dump del proceso 1640 con lo cual podremos examinar con mas detalle las caracteristicas de este proceso.
 
 ![6](https://user-images.githubusercontent.com/102627887/206274961-eb4f8de9-4de1-4c6c-9176-6908c8efc328.png)
+
 _Fig. 6 Dump men del PID 1640_
 
 Al mismo tiempo, podemos observar con el comando connscan las conexiones TCP establecidas, las cuales son:
 
 ![7](https://user-images.githubusercontent.com/102627887/206274978-0f2b81b3-d69d-43b8-9eab-3506d775b3bd.png)
+
 _Fig. 7 Conexiones establecidas_
 
 Usaremos otra herramienta bulk_extractor para extraer las conexiones en un archivo PCAP para ser leido por WireShark.
 
 ![8](https://user-images.githubusercontent.com/102627887/206274986-a922b5bb-c0d1-4024-ac2f-260d45541fb4.png)
+
 _Fig. 8 Captura de paquetes con bulk extractor_
 
 Con el uso de la herramienta Wireshark, podemos observar que la IP 41.168.5.140 realiza multiples consultas PSH hacia la PC del usuario, lo cual nos  indica un comportamiento sospechoso:
 
 ![9](https://user-images.githubusercontent.com/102627887/206274998-964b9acb-1f9a-4cad-bc1e-be833f037481.jpeg)
+
 _Fig. 9 TCP conexiones_ 
 
 Con el fin de corroborar si esta IP esta ligada al proceso sospechoso PID 1640, del dump obtenido se realizo una busqueda de dicha IP, resultando que efectivamente dicha IP se encuentra ligada al proceso PID 1640.
 
 ![10](https://user-images.githubusercontent.com/102627887/206275015-fc9d3666-466f-499a-a70d-cc99fd4c33a1.png)
+
 _Fig. 10 Proceso PID 1640 ligado a la IP 41.168.5.140_ 
 
 Realizamos la extracion del archivo ejecutable de la memoria con el fin de examinarlo con un antivirus, esto se realiza con el comando procdump.
 
 ![11](https://user-images.githubusercontent.com/102627887/206275020-86d2f58d-f76f-463c-bc05-5d270c0c8cff.png)
+
 _Fig. 11 Extraccion del proceso PID 1640_ 
 
 Obtenemos el archivo ejecutable exe para ser examinado con algun antivirus.
@@ -118,21 +129,25 @@ _Fig. 13 Analisis del archivo con virustotal.com._
 Con el fin de ubicar al archivo malware en la PC del usuario, usaremos el comando hivelist para listar que archivos hacen uso de la memoria. Se observa que el archivo NTUSER.DAT se ejecuta en varios procesos, por lo cual nos da un indicio de sospecha.
 
  ![14](https://user-images.githubusercontent.com/102627887/206275071-62f5b910-18a3-4bda-8a92-e6ca65f323f8.png)
+ 
 _Fig. 14 Busqueda del archivo asociado al proceso_
 
 Con el comando printkey al directorio windows “Software/Microsoft/Windows/CurrentVersion/run”, podemos verificar el valor de registro ejectable, el cual es KB00207877.
 
  ![15](https://user-images.githubusercontent.com/102627887/206275232-b3aa6be9-d2dd-4fc7-828d-4de62d91bfb2.png)
+ 
 _Fig. 15 Identificacion del registro KB00207877_
 
 En el dump de memoria obtenido del proceso PID 1640, podemos verificar que dicho proceso esta asociado al registro KB00207877 encontrado en el archivo NTUSER.DAT, por lo tanto concluimos que pertencen al malware.
 
  ![16](https://user-images.githubusercontent.com/102627887/206275253-e90b7368-801a-49e9-b211-6af3284565c8.png)
+ 
 _Fig. 16 Dump de memoria asociado a KB00207877_
 
 Verificando el dump de memoria obtenido del proceso PID 1640 identificado como malware CRIDEX, observamos que tambien tiene en su registro multiples dominios bancarios.
 
 ![Captura de pantalla de 2022-11-30 08-24-25](https://user-images.githubusercontent.com/102627887/206275334-78bbe0d7-4cc0-49c8-93a5-de6474b5dd00.png)
+
 _Fig. 17 Paginas de bancos en el dump de memoria._
 
 ## 3.3	Regla Yara
