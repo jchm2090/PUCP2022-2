@@ -170,9 +170,14 @@ rule Malware_Cridex_Generic_dll {
 		$c1 and 1 of ($b*)
 }
 ```
-![Imagen 6-12-22 a las 20 18](https://user-images.githubusercontent.com/102627887/206273816-fd7dd17d-946b-4eb0-b5e5-e136d67a440e.jpg) 
+
+Como podemos observar, las reglas YAR encontraron el malware en el proceso PID 1640  de reader_sl.exe, el cual coincide con nuestro analisis preliminar.
+
+![Imagen 7-12-22 a las 19 40](https://user-images.githubusercontent.com/102627887/206328055-672936c9-9902-4e07-ac1c-ae992727ffb8.jpg)
 
 _Fig. 18 Busqueda con Yala Rule._
+
+
 
 # 4 Conclusiones
 
