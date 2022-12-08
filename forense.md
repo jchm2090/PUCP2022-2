@@ -119,11 +119,13 @@ _Fig. 11 Extraccion del proceso PID 1640_
 Obtenemos el archivo ejecutable exe para ser examinado con algun antivirus.
 
 ![12](https://user-images.githubusercontent.com/102627887/206275039-881f09f9-7482-4cc5-9df5-2051e85ac1ba.png)
+
 _Fig. 12 Archivo exe extraido_ 
 
 En la pagina de virustotal.com, podemos concluir que efectivamente el archivo ligado al proceso PID tiene malware asociado a CRIDEX y esta enviando informacion a la IP 41.168.5.140.
 
  ![13](https://user-images.githubusercontent.com/102627887/206275055-cf6c2c4e-8610-4828-a427-b33b8cd09e46.png)
+ 
 _Fig. 13 Analisis del archivo con virustotal.com._ 
 
 Con el fin de ubicar al archivo malware en la PC del usuario, usaremos el comando hivelist para listar que archivos hacen uso de la memoria. Se observa que el archivo NTUSER.DAT se ejecuta en varios procesos, por lo cual nos da un indicio de sospecha.
